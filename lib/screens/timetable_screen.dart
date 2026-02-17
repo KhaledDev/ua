@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/course.dart';
 import '../Services/course_storage.dart';
 import '../Services/TimeConverter.dart';
+import '../widgets/khaled_dev_watermark.dart';
 import 'add_course_screen.dart';
 
 class TimetableScreen extends StatefulWidget {
@@ -147,6 +148,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text('Full Timetable')),
         body: const Center(child: CircularProgressIndicator()),
+        bottomNavigationBar: const KhaledDevWatermark(),
       );
     }
 
@@ -175,6 +177,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
             ],
           ),
         ),
+        bottomNavigationBar: const KhaledDevWatermark(),
       );
     }
 
@@ -385,6 +388,7 @@ class _TimetableScreenState extends State<TimetableScreen> {
           );
         },
       ),
+      bottomNavigationBar: const KhaledDevWatermark(),
     );
   }
 }

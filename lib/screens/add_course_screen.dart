@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/course.dart';
 import '../Services/course_storage.dart';
 import '../Services/notification_service.dart';
+import '../widgets/khaled_dev_watermark.dart';
 
 class AddCourseScreen extends StatefulWidget {
   final Course? course; // For editing existing courses
@@ -264,6 +265,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const KhaledDevWatermark(),
     );
   }
 }

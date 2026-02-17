@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/course.dart';
 import '../Services/course_storage.dart';
 import '../Services/TimeConverter.dart';
+import '../widgets/khaled_dev_watermark.dart';
 import 'components/course_tile.dart';
 import 'add_course_screen.dart';
 
@@ -257,6 +258,7 @@ class _WeekScheduleScreenState extends State<WeekScheduleScreen>
                 );
               }),
             ),
+      bottomNavigationBar: const KhaledDevWatermark(),
     );
   }
 }

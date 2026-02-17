@@ -4,6 +4,7 @@ import '../models/course.dart';
 import '../Services/course_storage.dart';
 import '../Services/TimeConverter.dart';
 import '../Services/notification_service.dart';
+import '../widgets/khaled_dev_watermark.dart';
 import 'add_course_screen.dart';
 import 'components/course_tile.dart';
 import 'week_schedule_screen.dart';
@@ -339,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add),
       ),
       drawer: _buildDrawer(),
+      bottomNavigationBar: const KhaledDevWatermark(),
     );
   }
 
