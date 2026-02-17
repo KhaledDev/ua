@@ -22,14 +22,16 @@ jobs:
       
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.1'
           channel: 'stable'
       
       - name: Install dependencies
         run: flutter pub get
       
       - name: Build web
-        run: flutter build web --release
+        run: flutter build web --release --base-href "/"
+
+      - name: Configure custom domain
+        run: echo ua.khaleddev.com > build/web/CNAME
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
