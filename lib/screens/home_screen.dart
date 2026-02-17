@@ -5,6 +5,9 @@ import '../Services/course_storage.dart';
 import '../Services/TimeConverter.dart';
 import '../Services/notification_service.dart';
 import 'add_course_screen.dart';
+import 'components/course_tile.dart';
+import 'week_schedule_screen.dart';
+import 'timetable_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(ThemeMode)? onThemeChanged;
@@ -173,16 +176,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const PopupMenuItem(
-                value: 'permissions',
-                child: Row(
-                  children: [
-                    Icon(Icons.notifications),
-                    SizedBox(width: 8),
-                    Text('Notification Permissions'),
-                  ],
+              if (NotificationService.isSupported)
+                const PopupMenuItem(
+                  value: 'permissions',
+                  child: Row(
+                    children: [
+                      Icon(Icons.notifications),
+                      SizedBox(width: 8),
+                      Text('Notification Permissions'),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -288,7 +292,35 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemCount: _getTodaysCourses().length,
                           itemBuilder: (context, index) {
                             final course = _getTodaysCourses()[index];
-                            return _buildCourseCard(course);
+                            final timeSlot = _getDisplayTimeSlot(course);
+                            final times = TimeConverter.parseTimeSlot(timeSlot);
+                            final startTime = times['start']!;
+                            final endTime = times['end']!;
+                            final now = DateTime.now();
+
+                            final isInProgress =
+                                now.isAfter(startTime) && now.isBefore(endTime);
+                            final isPast = now.isAfter(endTime);
+
+                            return CourseTile(
+                              course: course,
+                              displayTimeSlot: timeSlot,
+                              isInProgress: isInProgress,
+                              isPast: isPast,
+                              onTap: () async {
+                                final result = await Navigator.push<bool>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AddCourseScreen(course: course),
+                                  ),
+                                );
+                                if (result == true) {
+                                  await _loadData();
+                                }
+                              },
+                              onDelete: () => _deleteCourse(course),
+                            );
                           },
                         ),
                 ),
@@ -388,110 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCourseCard(Course course) {
-    final timeSlot = _getDisplayTimeSlot(course);
-    final times = TimeConverter.parseTimeSlot(timeSlot);
-    final startTime = times['start']!;
-    final endTime = times['end']!;
-    final now = DateTime.now();
-
-    final isInProgress = now.isAfter(startTime) && now.isBefore(endTime);
-    final isPast = now.isAfter(endTime);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () async {
-          final result = await Navigator.push<bool>(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddCourseScreen(course: course),
-            ),
-          );
-          if (result == true) {
-            await _loadData();
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: isInProgress
-                      ? Colors.green
-                      : isPast
-                      ? Colors.grey
-                      : Colors.blue,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      course.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isPast ? Colors.grey : null,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          timeSlot,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (course.location != null) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            course.location!,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _deleteCourse(course),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildDrawer() {
     return Drawer(
@@ -507,7 +435,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(Icons.school, size: 48, color: Colors.white),
                 SizedBox(height: 8),
                 Text(
-                  'All Courses',
+                  'University Courses',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -517,9 +445,53 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+          ListTile(
+            leading: const Icon(Icons.today),
+            title: const Text('Today'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.view_week),
+            title: const Text('Week View'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WeekScheduleScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_view_week),
+            title: const Text('Full Timetable'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TimetableScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'All Courses',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           if (_courses.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text('No courses yet'),
             )
           else
