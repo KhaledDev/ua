@@ -15,7 +15,6 @@ class Course {
     this.instructor,
   });
 
-  // Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -27,7 +26,6 @@ class Course {
     };
   }
 
-  // Create from JSON
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
       id: json['id'] as String,
@@ -39,7 +37,6 @@ class Course {
     );
   }
 
-  // Create a copy with optional field changes
   Course copyWith({
     String? id,
     String? name,
@@ -69,6 +66,6 @@ class Course {
   }
 
   bool isFriday() {
-    return days.contains(5); // Friday is 5
+    return days.contains(5);
   }
 }

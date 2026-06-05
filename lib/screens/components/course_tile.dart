@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/course.dart';
 
-/// A reusable widget for displaying a course in a list/tile format
 class CourseTile extends StatelessWidget {
   final Course course;
   final String displayTimeSlot;

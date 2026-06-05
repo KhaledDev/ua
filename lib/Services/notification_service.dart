@@ -19,8 +19,7 @@ class NotificationService {
 
     try {
       tz.initializeTimeZones();
-      // Set local timezone (use your timezone, e.g., 'America/New_York', 'Europe/London', 'Asia/Dubai')
-      // For most cases, you can use UTC or the device's default
+      // usually utc is find as said that one stackoverflow user
       final String timeZoneName = 'UTC';
       tz.setLocalLocation(tz.getLocation(timeZoneName));
 
